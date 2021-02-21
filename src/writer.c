@@ -12,12 +12,13 @@ void exit_failure(char *message) {
 void Writer_open(Writer *w, const char *filename) {
   if ((w->fp = fopen(filename, "wb")) == NULL) {
     perror(NULL);
-    exit(EXIT_FAILURE);
+    exit_failure("Failed to write to file\n");
   }
 }
 void Writer_close(Writer *w) {
   // End check?
-  fclose(w->fp);
+  if (fclose(w->fp) == EOF)
+    exit_failure("Failed to close file\n");
 }
 void Writer_or_exit(Writer *w, const void const *data, size_t size, size_t num) {
   if (fwrite(data, size, num, w->fp) < 1) {
@@ -71,7 +72,7 @@ void Writer_vluint(Writer *w, uint32_t value) {
     Writer_or_exit(w, &vlu.bytes, 1, vlu.size);
   }
 }
-Writer_trackevent(Writer *w, TrackEvent *ev) {
+void Writer_trackevent(Writer *w, TrackEvent *ev) {
   Writer_vluint(w, ev->delta);
   if (ev->type == TrackEventType_MIDI) {
     Writer_midi_event(w, ev);
@@ -93,23 +94,9 @@ void Writer_track(Writer *w, MTrack* track) {
   }
 }
 
-void Writer_smf(const char *filename) {
-  uint32_t tempo = 120;
-  MHead head = {0, 1, 480};
-  TrackEvent *events;
-  MTrack track = {};
-  TimeSignature ts = {4, 4, 24, 8};
-
-  FILE* fp = fopen(filename, "wb");
-  if (fp == NULL)
-    exit_failure("Failed to write to file\n");
-
-  Writer_head(fp, &head);
-  Writer_time_signature(fp, &ts);
-  Writer_tempo(fp, &tempo);
-
-  if (fclose(fp) == EOF)
-    exit_failure("Failed to close file\n");
+void Writer_smf(Writer *w, SMF *smf) {
+  Writer_head(w, &smf->head);
+  Writer_track(w, &smf->track);
 }
 
 /*

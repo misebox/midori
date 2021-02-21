@@ -21,9 +21,20 @@ void VLUint_set(VLUint *vlu, uint32_t value) {
 }
 
 // SMF
+void TimeSignature_init(TimeSignature *ts) {
+  ts->numer = 4;
+  ts->denom = 4;
+  ts->num_clocks = 24;
+  ts->num_32nd = 8;
+}
 void SMF_init(SMF *smf) {
   MHead_init(&smf->head);
   MTrack_init(&smf->track, 10);
+  smf->tempo = 120;
+  TimeSignature_init(&smf->ts);
+}
+void SMF_release(SMF *smf) {
+  MTrack_release(&smf->track);
 }
 // MHead
 void MHead_init(MHead *head) {
@@ -52,10 +63,10 @@ void MTrack_resize(MTrack *mt, uint32_t size) {
 void MTrack_append(MTrack *mt, TrackEvent *ev) {
   assert(mt->size < mt->len);
   if (mt->size == mt->len) {
-    Mtrack_resize(mt, mt->size * 2);
+    MTrack_resize(mt, mt->size * 2);
   }
   mt->events[mt->len] = ev;
-  mt->len + 1;
+  mt->len += 1;
 }
 // TODO MTrack_remove
 void MTrack_release(MTrack *mt) {
@@ -154,4 +165,5 @@ uint32_t TrackEvent_length(TrackEvent *ev) {
   } else if (ev->type == TrackEventType_META) {
     return vlu.size + 3 +ev->meta.len;
   }
+  return vlu.size;
 }

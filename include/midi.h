@@ -107,15 +107,32 @@ typedef struct _SMF {
   MHead head;
   // There is no supports for format1 yet, so it's only one track.
   MTrack track;
+  uint32_t tempo;
+  TimeSignature ts;
 } SMF;
 
+// SMF
 void VLUint_set(VLUint *vlu, uint32_t value);
+void TimeSignature_init(TimeSignature *ts);
+
 void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t note, uint8_t vel, uint8_t ch);
 inline void MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t vel, uint8_t ch);
 inline void MidiEvent_set_note_off(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t ch);
 void SysExEvent_init(TrackEvent *ev, uint32_t delta, SysExType type, size_t len);
-void TrackEvent_release(TrackEvent *ev);
 void MetaEvent_init(TrackEvent *ev, uint32_t delta, MetaEventType type, size_t len);
 void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta);
 void MetaEvent_init_tempo(TrackEvent *ev, uint32_t delta, uint32_t tempo);
 void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature *ts);
+void TrackEvent_release(TrackEvent *ev);
+uint32_t TrackEvent_length(TrackEvent *ev);
+
+// MHead
+void MHead_init(MHead *head);
+// MTrack
+void MTrack_init(MTrack *mt, uint32_t size);
+void MTrack_resize(MTrack *mt, uint32_t size);
+void MTrack_append(MTrack *mt, TrackEvent *ev);
+void MTrack_release(MTrack *mt);
+
+void SMF_init(SMF *smf);
+void SMF_release(SMF *smf);
