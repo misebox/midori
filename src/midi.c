@@ -20,6 +20,48 @@ void VLUint_set(VLUint *vlu, uint32_t value) {
   vlu->size = cur;
 }
 
+// SMF
+void SMF_init(SMF *smf) {
+  MHead_init(&smf->head);
+  MTrack_init(&smf->track, 10);
+}
+// MHead
+void MHead_init(MHead *head) {
+  // TODO: there is no support for format1.
+  head->format = 0;
+  head->trackcount = 1;
+  head->resolution = 480;
+}
+// MTrack
+void MTrack_init(MTrack *mt, uint32_t size) {
+  mt->events = (TrackEvent **)malloc(sizeof(TrackEvent *) * size);
+  mt->len = 0;
+  mt->size = size;
+}
+void MTrack_resize(MTrack *mt, uint32_t size) {
+  assert(size > 0);
+  // shrink
+  if (mt->len > size) {
+    for (int i = size; i < mt->len; i++) {
+      TrackEvent_release(mt->events[i]);
+    }
+  }
+  mt->events = (TrackEvent **)realloc(mt->events, sizeof(TrackEvent *) * size);
+  mt->size = size;
+}
+void MTrack_append(MTrack *mt, TrackEvent *ev) {
+  assert(mt->size < mt->len);
+  if (mt->size == mt->len) {
+    Mtrack_resize(mt, mt->size * 2);
+  }
+  mt->events[mt->len] = ev;
+  mt->len + 1;
+}
+// TODO MTrack_remove
+void MTrack_release(MTrack *mt) {
+  free(mt->events);
+}
+
 // MIDI event
 void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t note, uint8_t vel, uint8_t ch) {
   ev->type = TrackEventType_MIDI;
@@ -91,4 +133,25 @@ void TrackEvent_release(TrackEvent *ev) {
     SysExEvent_release(ev);
   else if (ev->type == TrackEventType_META)
     MetaEvent_release(ev);
+}
+uint32_t TrackEvent_length(TrackEvent *ev) {
+  VLUint vlu;
+  VLUint_set(&vlu, ev->delta);
+  if (ev->type == TrackEventType_MIDI) {
+    if (ev->midi.msg == MidiMsgType_PROGRAM_CHANGE) {
+      return vlu.size + 2;
+    } else if (ev->midi.msg == MidiMsgType_CHANNEL_PRESSURE) {
+      return vlu.size + 2;
+    } else {
+      return vlu.size + 3;
+    }
+  } else if (ev->type == TrackEventType_SYSEX) {
+    if (ev->sysex.type == SysExType_F0) {
+      return vlu.size + 3 +ev->sysex.len;
+    } else {
+      return vlu.size + 2 +ev->sysex.len;
+    }
+  } else if (ev->type == TrackEventType_META) {
+    return vlu.size + 3 +ev->meta.len;
+  }
 }

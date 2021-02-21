@@ -99,8 +99,15 @@ typedef struct _MHead {
 // Truck Chunk
 typedef struct _MTrack {
   uint32_t len;
-  TrackEvent *events;
+  uint32_t size;
+  TrackEvent **events;
 } MTrack;
+
+typedef struct _SMF {
+  MHead head;
+  // There is no supports for format1 yet, so it's only one track.
+  MTrack track;
+} SMF;
 
 void VLUint_set(VLUint *vlu, uint32_t value);
 void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t note, uint8_t vel, uint8_t ch);
