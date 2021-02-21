@@ -105,7 +105,6 @@ typedef struct _MTrack {
   TrackEvent *events;
 } MTrack;
 
-
 void VLUint_set(VLUint *vlu, uint32_t value);
 void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t note, uint8_t vel, uint8_t ch);
 inline void MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t vel, uint8_t ch);
