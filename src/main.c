@@ -55,6 +55,7 @@ void write_head(FILE *fp, MHead *head) {
   write_or_exit(fp, &head->resolution, 2, 1);
 }
 
+const uint8_t MetaStart = 0xFF;
 void write_tempo(FILE *fp, uint32_t tempo) {
   write_or_exit(fp, MetaStart, 1, 1);
   write_or_exit(fp, 0x51, 1, 1);

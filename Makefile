@@ -1,21 +1,24 @@
-COMPILER = g++
+COMPILER = gcc
 CFLAGS   = -g -Wall -O2
 LDFLAGS  =
 LIBS     =
 INCLUDE  = -I./include
 TARGET   = ./bin/midori
 OBJDIR   = ./build
-SOURCES  = $(wildcard src/*.c)
+SRCDIR   = ./src
+SOURCES  = $(wildcard $(SRCDIR)/*.c)
 OBJECTS  = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.c=.o)))
+DEPENDS  = $(OBJECTS:.o=.d)
 
 $(TARGET): $(OBJECTS) $(LIBS)
 	$(COMPILER) -o $@ $^ $(LDFLAGS)
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	-mkdir -p $(OBJDIR)
 	@[ -d $(OBJDIR) ]
 	$(COMPILER) $(CFLAGS) $(INCLUDE) -o $@ -c $<
 
 all: clean $(TARGET)
 
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -f $(OBJECTS) $(TARGET) $(DEPENDS)

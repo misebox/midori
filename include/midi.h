@@ -73,9 +73,6 @@ typedef struct _TrackEvent{
   };
 } TrackEvent;
 
-//
-const uint8_t MetaStart = 0xFF;
-
 // Variable Length Unsigned Integer
 typedef struct _VLUint {
   uint8_t size;
