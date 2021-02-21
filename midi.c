@@ -1,9 +1,10 @@
 #include <stdint.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "midi.h"
 
-void set_vluint(VLUint *vlu, uint32_t value) {
+void VLUint_set(VLUint *vlu, uint32_t value) {
   assert(value < 0x10000000);
   int cur = 0;
   for (int i=0; i<=3; i++) {
@@ -19,6 +20,75 @@ void set_vluint(VLUint *vlu, uint32_t value) {
   vlu->size = cur;
 }
 
-void set_midi_event(MIDIEvent *ev, uint8_t note, uint8_t vel) {
+// MIDI event
+void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t note, uint8_t vel, uint8_t ch) {
+  ev->type = TrackEventType_MIDI;
+  ev->delta = delta;
+  ev->midi.msg = msg;
+  ev->midi.ch = ch;
+  ev->midi.note = note;
+  ev->midi.vel = vel;
+}
 
+// Note ON
+inline void
+MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t vel, uint8_t ch) {
+  MidiEvent_init(ev, delta, MidiMsgType_NOTE_ON, note, vel, ch);
+}
+
+// Note OFF
+inline void
+MidiEvent_set_note_off(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t ch) {
+  MidiEvent_init(ev, delta, MidiMsgType_NOTE_OFF, note, 0, ch);
+}
+
+// SysEx Event
+void SysExEvent_init(TrackEvent *ev, uint32_t delta, SysExType type, size_t len) {
+  ev->type = TrackEventType_SYSEX;
+  ev->delta = delta;
+  ev->sysex.type = type;
+  ev->sysex.len = len;
+  ev->sysex.data = (uint8_t *)malloc(len);
+}
+void SysExEvent_release(TrackEvent *ev) {
+  free(ev->sysex.data);
+}
+
+// Meta event
+void MetaEvent_init(TrackEvent *ev, uint32_t delta, MetaEventType type, size_t len) {
+  ev->type = TrackEventType_META;
+  ev->delta = delta;
+  ev->meta.type = type;
+  ev->meta.len = len;
+  if (len > 0)
+    ev->meta.data = (uint8_t *)malloc(len);
+  else
+    ev->meta.data = NULL;
+}
+void MetaEvent_release(TrackEvent *ev) {
+  free(ev->meta.data);
+}
+void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta) {
+  MetaEvent_init(ev, delta, MetaEventType_SetTempo, 0);
+}
+void MetaEvent_init_tempo(TrackEvent *ev, uint32_t delta, uint32_t tempo) {
+  MetaEvent_init(ev, delta, MetaEventType_SetTempo, 3);
+  for (int i=0; i<3; i++) {
+    ev->meta.data[i] = tempo >> (8 *(2 - i)) & 0xFF;
+  }
+}
+void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature *ts) {
+  MetaEvent_init(ev, delta, MetaEventType_TimeSignature, 4);
+  ev->meta.data[0] = ts->numer;
+  ev->meta.data[1] = ts->denom / 2;
+  ev->meta.data[2] = ts->num_clocks;
+  ev->meta.data[3] = ts->num_32nd;
+}
+
+// TrackEvent
+void TrackEvent_release(TrackEvent *ev) {
+  if (ev->type == TrackEventType_SYSEX)
+    SysExEvent_release(ev);
+  else if (ev->type == TrackEventType_META)
+    MetaEvent_release(ev);
 }

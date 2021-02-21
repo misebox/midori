@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <person.h>
+#include "person.h"
 #include <stdint.h>
 #include "midi.h"
 
@@ -37,7 +37,7 @@ void write_or_exit(FILE *fp, const void *data, uint8_t size, size_t num) {
 
 void write_vluint(FILE *fp, uint32_t value) {
   VLUint vlu;
-  set_vluint(&vlu, value);
+  VLUint_set(&vlu, value);
   if (vlu.size == 1) {
     write_or_exit(fp, vlu.bytes, 1, 1);
   } else {
