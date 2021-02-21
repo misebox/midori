@@ -1,2 +1,2 @@
-midori:
-	gcc -I. main.c -o midori
+midori: main.c
+	gcc main.c -o midori
