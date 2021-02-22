@@ -10,18 +10,23 @@ void exit_failure(char *message) {
   exit(EXIT_FAILURE);
 }
 
+int cnt;
 void Writer_open(Writer *w, const char *filename) {
+  cnt = 0;
   if ((w->fp = fopen(filename, "wb")) == NULL) {
     perror(NULL);
     exit_failure("Failed to write to file\n");
   }
 }
 void Writer_close(Writer *w) {
+  cnt = 0;
   // End check?
   if (fclose(w->fp) == EOF)
     exit_failure("Failed to close file\n");
 }
 void Writer_or_exit(Writer *w, const void const *data, size_t size, size_t num) {
+  cnt += size * num;
+  debug_printf("cnt: %d", cnt);
   if (fwrite(data, size, num, w->fp) < 1) {
     exit_failure("Failed to write VLUint to file");
   }
@@ -55,45 +60,50 @@ void Writer_sysex_event(Writer *w, SysExEvent *sysex) {
   }
 }
 void Writer_meta_event(Writer *w, METAEvent *meta) {
+  debug_printf("meta type %d", meta->type);
   Writer_or_exit(w, &meta->type, 1, 1);
+  debug_printf("meta len %d", meta->len);
   Writer_or_exit(w, &meta->len, 1, 1);
   if (meta->len > 0) {
+    debug_printf("meta %d", meta->len);
     Writer_or_exit(w, meta->data, 1, meta->len);
   }
 }
 void Writer_vluint(Writer *w, uint32_t value) {
   VLUint vlu;
   VLUint_set(&vlu, value);
-  debug_print("%d\n", value);
+  debug_printf("VLU: %d", value);
   if (vlu.size == 1) {
     Writer_or_exit(w, vlu.bytes, 1, 1);
   } else {
     Writer_or_exit(w, &vlu.size, 1, 1);
-    Writer_or_exit(w, &vlu.bytes, 1, vlu.size);
+    Writer_or_exit(w, &vlu.bytes, vlu.size, 1);
   }
+  debug_print("ok");
 }
 void Writer_trackevent(Writer *w, TrackEvent *ev) {
   Writer_vluint(w, ev->delta);
   if (ev->type == TrackEventType_MIDI) {
-    Writer_midi_event(w, ev);
+    Writer_midi_event(w, &ev->midi);
   } else if (ev->type == TrackEventType_SYSEX) {
-    Writer_sysex_event(w, ev);
+    Writer_sysex_event(w, &ev->sysex);
   } else if (ev->type == TrackEventType_META) {
-    Writer_meta_event(w, ev);
+    Writer_meta_event(w, &ev->meta);
   }
+  debug_print("ok");
 }
 void Writer_track(Writer *w, MTrack* track) {
+  debug_printf("%d", track->len);
   Writer_or_exit(w, "MTrk", 1, 4);
-  debug_print("%d\n", track->len);
   uint32_t len = 0;
   for (int i=0; i<track->len; i++) {
     len += TrackEvent_length(track->events[i]);
   }
-  debug_print("total len: %d\n", len);
+  debug_printf("total len: %d", len);
   Writer_or_exit(w, &len, 4, 1);
   for (int i=0; i<track->len; i++) {
-    debug_print("write trackevent: %d\n", i);
-    Writer_trackevent(w, &track->events[i]);
+    debug_printf("write trackevent: %d", i);
+    Writer_trackevent(w, track->events[i]);
   }
 }
 

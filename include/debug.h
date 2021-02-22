@@ -1,14 +1,14 @@
 #pragma once
 
+#include <stdio.h>
+
 #ifdef DEBUG
-#define DEBUG_TEST 1
+#define debug_print(fmt) debug_printf(fmt, "")
+#define debug_printf(fmt, ...) \
+  do {                           \
+    fprintf(stdout, "%s:%d:%s(): " fmt "\n", __FILE__, __LINE__, __func__, __VA_ARGS__); \
+  } while (0)
 #else
-#define DEBUG_TEST 0
+#define debug_print(fmt, ...)
 #endif
 
-#define debug_print(fmt, ...)            \
-  do                                     \
-  {                                      \
-    if (DEBUG_TEST)                           \
-      fprintf(stderr, fmt, __VA_ARGS__); \
-  } while (0)

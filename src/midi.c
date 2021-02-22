@@ -3,10 +3,15 @@
 #include <assert.h>
 
 #include "midi.h"
+#include "debug.h"
 
 void VLUint_set(VLUint *vlu, uint32_t value) {
   assert(value < 0x10000000);
   int cur = 0;
+  vlu->bytes[0] = 0;
+  vlu->bytes[1] = 0;
+  vlu->bytes[2] = 0;
+  vlu->bytes[3] = 0;
   for (int i=0; i<=3; i++) {
     uint8_t byte = value >> (7 * (3 - i)) & 0xFF;
     if (cur > 0 || byte > 0 || i == 3) {
@@ -35,6 +40,7 @@ void SMF_init(SMF *smf) {
 }
 void SMF_release(SMF *smf) {
   MTrack_release(&smf->track);
+  debug_print("done");
 }
 // MHead
 void MHead_init(MHead *head) {
@@ -45,7 +51,8 @@ void MHead_init(MHead *head) {
 }
 // MTrack
 void MTrack_init(MTrack *mt, uint32_t size) {
-  mt->events = (TrackEvent **)malloc(sizeof(TrackEvent *) * size);
+  debug_printf("calloc: %d", sizeof(TrackEvent *) * size);
+  mt->events = (TrackEvent **)calloc(size, sizeof(TrackEvent *));
   mt->len = 0;
   mt->size = size;
 }
@@ -57,11 +64,12 @@ void MTrack_resize(MTrack *mt, uint32_t size) {
       TrackEvent_release(mt->events[i]);
     }
   }
+  debug_printf("realloc: %d", sizeof(TrackEvent *) * size);
   mt->events = (TrackEvent **)realloc(mt->events, sizeof(TrackEvent *) * size);
   mt->size = size;
 }
 void MTrack_append(MTrack *mt, TrackEvent *ev) {
-  debug_print("mt len: %d\n", mt->len);
+  debug_printf("mt len: %d", mt->len);
   assert(mt->len <= mt->size);
   if (mt->size == mt->len) {
     MTrack_resize(mt, mt->size * 2);
@@ -71,7 +79,11 @@ void MTrack_append(MTrack *mt, TrackEvent *ev) {
 }
 // TODO MTrack_remove
 void MTrack_release(MTrack *mt) {
+  for (int i = 0; i < mt->len; i++) {
+    TrackEvent_release(mt->events[i]);
+  }
   free(mt->events);
+  debug_print("done");
 }
 
 // MIDI event
@@ -97,6 +109,7 @@ MidiEvent_set_note_off(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t ch)
 
 // SysEx Event
 void SysExEvent_init(TrackEvent *ev, uint32_t delta, SysExType type, size_t len) {
+  debug_printf("malloc: %d", len);
   ev->type = TrackEventType_SYSEX;
   ev->delta = delta;
   ev->sysex.type = type;
@@ -105,21 +118,25 @@ void SysExEvent_init(TrackEvent *ev, uint32_t delta, SysExType type, size_t len)
 }
 void SysExEvent_release(TrackEvent *ev) {
   free(ev->sysex.data);
+  debug_print("done");
 }
 
 // Meta event
 void MetaEvent_init(TrackEvent *ev, uint32_t delta, MetaEventType type, size_t len) {
+  debug_printf("malloc: %d", len);
   ev->type = TrackEventType_META;
   ev->delta = delta;
   ev->meta.type = type;
   ev->meta.len = len;
-  if (len > 0)
-    ev->meta.data = (uint8_t *)malloc(len);
-  else
+  if (len > 0) {
+    ev->meta.data = (uint8_t *)calloc(len, 1);
+  } else {
     ev->meta.data = NULL;
+  }
 }
 void MetaEvent_release(TrackEvent *ev) {
   free(ev->meta.data);
+  debug_print("done");
 }
 void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 0);
@@ -141,14 +158,17 @@ void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature
 
 // TrackEvent
 void TrackEvent_release(TrackEvent *ev) {
-  if (ev->type == TrackEventType_SYSEX)
+  if (ev->type == TrackEventType_SYSEX) {
     SysExEvent_release(ev);
-  else if (ev->type == TrackEventType_META)
+  } else if (ev->type == TrackEventType_META) {
     MetaEvent_release(ev);
+  }
 }
 uint32_t TrackEvent_length(TrackEvent *ev) {
   VLUint vlu;
   VLUint_set(&vlu, ev->delta);
+  debug_printf("vlu %d --> %02x%02x%02x%02x size: %d",
+    ev->delta, vlu.bytes[0], vlu.bytes[1], vlu.bytes[2], vlu.bytes[3], vlu.size);
   if (ev->type == TrackEventType_MIDI) {
     if (ev->midi.msg == MidiMsgType_PROGRAM_CHANGE) {
       return vlu.size + 2;
@@ -159,12 +179,12 @@ uint32_t TrackEvent_length(TrackEvent *ev) {
     }
   } else if (ev->type == TrackEventType_SYSEX) {
     if (ev->sysex.type == SysExType_F0) {
-      return vlu.size + 3 +ev->sysex.len;
+      return vlu.size + 3 + ev->sysex.len;
     } else {
-      return vlu.size + 2 +ev->sysex.len;
+      return vlu.size + 2 + ev->sysex.len;
     }
   } else if (ev->type == TrackEventType_META) {
-    return vlu.size + 3 +ev->meta.len;
+    return vlu.size + 3 + ev->meta.len;
   }
   return vlu.size;
 }

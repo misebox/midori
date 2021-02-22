@@ -1,5 +1,5 @@
 COMPILER = gcc
-CFLAGS   = -g -Wall -O2
+CFLAGS   = -g -Wall -O2 -DDEBUG
 LDFLAGS  =
 LIBS     =
 INCLUDE  = -I./include
@@ -10,8 +10,6 @@ SOURCES  = $(wildcard $(SRCDIR)/*.c)
 OBJECTS  = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.c=.o)))
 DEPENDS  = $(OBJECTS:.o=.d)
 
-debug: CCFLAGS += -DDEBUG -g
-debug: $(TARGET)
 $(TARGET): $(OBJECTS) $(LIBS)
 	$(COMPILER) -o $@ $^ $(LDFLAGS)
 

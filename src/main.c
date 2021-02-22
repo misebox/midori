@@ -16,9 +16,10 @@ int main() {
   TrackEvent ts_ev;
   TrackEvent end_ev;
   MetaEvent_init_tempo(&tempo_ev, (uint32_t)0, smf.tempo);
-  debug_print("delta: %d\n", tempo_ev.delta);
+  debug_printf("delta: %d", tempo_ev.delta);
   MetaEvent_init_time_signature(&ts_ev, (uint32_t)0, &smf.ts);
-  MetaEvent_init_endoftrack(&end_ev, 100);
+  MetaEvent_init_endoftrack(&end_ev, 1920);
+  debug_printf("end_ev.len: %d", end_ev.meta.len);
   MTrack_append(&smf.track, &tempo_ev);
   MTrack_append(&smf.track, &ts_ev);
   MTrack_append(&smf.track, &end_ev);
