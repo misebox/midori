@@ -102,8 +102,7 @@ inline void MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, 
 }
 
 // Note OFF
-inline void
-MidiEvent_set_note_off(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t ch) {
+inline void MidiEvent_set_note_off(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t ch) {
   MidiEvent_init(ev, delta, MidiMsgType_NOTE_OFF, note, 0, ch);
 }
 

@@ -10,6 +10,12 @@ void exit_failure(char *message) {
   exit(EXIT_FAILURE);
 }
 
+void bytes_from_uint32(uint8_t bytes[4], uint32_t value) {
+  for (int i=0; i<4; i++) {
+    bytes[i] = value >> ((3 - i) * 8) & 0xFF;
+  }
+}
+
 int cnt;
 void Writer_open(Writer *w, const char *filename) {
   cnt = 0;
@@ -34,8 +40,10 @@ void Writer_or_exit(Writer *w, const void const *data, size_t size, size_t num) 
 
 void Writer_head(Writer *w, MHead *head) {
   Writer_or_exit(w, "MThd", 1, 4);
-  uint32_t length = 6;
-  Writer_or_exit(w, &length, 4, 1);
+  uint32_t len = 6;
+  uint8_t bytes[4];
+  bytes_from_uint32(bytes, len);
+  Writer_or_exit(w, bytes, 1, 4);
   Writer_or_exit(w, &head->format, 2, 1);
   Writer_or_exit(w, &head->trackcount, 2, 1);
   Writer_or_exit(w, &head->resolution, 2, 1);
@@ -100,7 +108,9 @@ void Writer_track(Writer *w, MTrack* track) {
     len += TrackEvent_length(track->events[i]);
   }
   debug_printf("total len: %d", len);
-  Writer_or_exit(w, &len, 4, 1);
+  uint8_t bytes[4];
+  bytes_from_uint32(bytes, len);
+  Writer_or_exit(w, bytes, 1, 4);
   for (int i=0; i<track->len; i++) {
     debug_printf("write trackevent: %d", i);
     Writer_trackevent(w, track->events[i]);

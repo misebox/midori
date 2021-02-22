@@ -1,5 +1,5 @@
 COMPILER = gcc
-CFLAGS   = -g -Wall -O2 -DDEBUG
+CFLAGS   = -g -O2 -Wall -DDEBUG
 LDFLAGS  =
 LIBS     =
 INCLUDE  = -I./include
