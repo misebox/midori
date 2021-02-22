@@ -61,7 +61,8 @@ void MTrack_resize(MTrack *mt, uint32_t size) {
   mt->size = size;
 }
 void MTrack_append(MTrack *mt, TrackEvent *ev) {
-  assert(mt->size < mt->len);
+  debug_print("mt len: %d\n", mt->len);
+  assert(mt->len <= mt->size);
   if (mt->size == mt->len) {
     MTrack_resize(mt, mt->size * 2);
   }
@@ -84,8 +85,7 @@ void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t not
 }
 
 // Note ON
-inline void
-MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t vel, uint8_t ch) {
+inline void MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t vel, uint8_t ch) {
   MidiEvent_init(ev, delta, MidiMsgType_NOTE_ON, note, vel, ch);
 }
 
@@ -124,10 +124,11 @@ void MetaEvent_release(TrackEvent *ev) {
 void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 0);
 }
+const uint8_t MetaStart = 0xFF;
 void MetaEvent_init_tempo(TrackEvent *ev, uint32_t delta, uint32_t tempo) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 3);
   for (int i=0; i<3; i++) {
-    ev->meta.data[i] = tempo >> (8 *(2 - i)) & 0xFF;
+    ev->meta.data[i] = tempo >> ((8 *(2 - i)) & MetaStart);
   }
 }
 void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature *ts) {

@@ -10,6 +10,8 @@ SOURCES  = $(wildcard $(SRCDIR)/*.c)
 OBJECTS  = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.c=.o)))
 DEPENDS  = $(OBJECTS:.o=.d)
 
+debug: CCFLAGS += -DDEBUG -g
+debug: $(TARGET)
 $(TARGET): $(OBJECTS) $(LIBS)
 	$(COMPILER) -o $@ $^ $(LDFLAGS)
 

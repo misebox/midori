@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "writer.h"
 #include "midi.h"
+#include "debug.h"
 
 
 void exit_failure(char *message) {
@@ -53,9 +54,7 @@ void Writer_sysex_event(Writer *w, SysExEvent *sysex) {
     Writer_or_exit(w, &endbyte, 1, 1);
   }
 }
-const uint8_t MetaStart = 0xFF;
 void Writer_meta_event(Writer *w, METAEvent *meta) {
-  Writer_or_exit(w, &MetaStart, 1, 1);
   Writer_or_exit(w, &meta->type, 1, 1);
   Writer_or_exit(w, &meta->len, 1, 1);
   if (meta->len > 0) {
@@ -65,6 +64,7 @@ void Writer_meta_event(Writer *w, METAEvent *meta) {
 void Writer_vluint(Writer *w, uint32_t value) {
   VLUint vlu;
   VLUint_set(&vlu, value);
+  debug_print("%d\n", value);
   if (vlu.size == 1) {
     Writer_or_exit(w, vlu.bytes, 1, 1);
   } else {
@@ -84,12 +84,15 @@ void Writer_trackevent(Writer *w, TrackEvent *ev) {
 }
 void Writer_track(Writer *w, MTrack* track) {
   Writer_or_exit(w, "MTrk", 1, 4);
+  debug_print("%d\n", track->len);
   uint32_t len = 0;
   for (int i=0; i<track->len; i++) {
     len += TrackEvent_length(track->events[i]);
   }
+  debug_print("total len: %d\n", len);
   Writer_or_exit(w, &len, 4, 1);
   for (int i=0; i<track->len; i++) {
+    debug_print("write trackevent: %d\n", i);
     Writer_trackevent(w, &track->events[i]);
   }
 }

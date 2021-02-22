@@ -5,6 +5,7 @@
 
 #include "midi.h"
 #include "writer.h"
+#include "debug.h"
 
 int main() {
   // SMF Data
@@ -14,13 +15,13 @@ int main() {
   TrackEvent tempo_ev;
   TrackEvent ts_ev;
   TrackEvent end_ev;
-  MetaEvent_init_tempo(&tempo_ev, 0, smf.tempo);
-  MetaEvent_init_time_signature(&ts_ev, 0, &smf.ts);
+  MetaEvent_init_tempo(&tempo_ev, (uint32_t)0, smf.tempo);
+  debug_print("delta: %d\n", tempo_ev.delta);
+  MetaEvent_init_time_signature(&ts_ev, (uint32_t)0, &smf.ts);
   MetaEvent_init_endoftrack(&end_ev, 100);
   MTrack_append(&smf.track, &tempo_ev);
   MTrack_append(&smf.track, &ts_ev);
   MTrack_append(&smf.track, &end_ev);
-
 
   // Save
   Writer writer;
