@@ -140,11 +140,10 @@ void MetaEvent_release(TrackEvent *ev) {
 void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 0);
 }
-const uint8_t MetaStart = 0xFF;
 void MetaEvent_init_tempo(TrackEvent *ev, uint32_t delta, uint32_t tempo) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 3);
   for (int i=0; i<3; i++) {
-    ev->meta.data[i] = tempo >> ((8 *(2 - i)) & MetaStart);
+    ev->meta.data[i] = tempo >> ((8 *(2 - i)) & 0xFF);
   }
 }
 void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature *ts) {
