@@ -23,8 +23,8 @@ int main() {
   debug_printf("end_ev.len: %d", end_ev.meta.len);
   MTrack_append(&smf.track, &tempo_ev);
   MTrack_append(&smf.track, &ts_ev);
-  for (int i=0; i<0; i++) {
-    MidiEvent_init(&melody[i], 240, MidiMsgType_NOTE_ON, 60 + i*2, 100, 0);
+  for (int i=0; i<3; i++) {
+    MidiEvent_init(&melody[i], 240, MidiMsgType_NOTE_ON, 0x60 + i*2, 100, 0);
     MTrack_append(&smf.track, &melody[i]);
   }
   MTrack_append(&smf.track, &end_ev);

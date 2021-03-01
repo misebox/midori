@@ -10,6 +10,11 @@ void exit_failure(char *message) {
   exit(EXIT_FAILURE);
 }
 
+void bytes_from_uint16(uint8_t bytes[2], uint16_t value) {
+  for (int i=0; i<2; i++) {
+    bytes[i] = (value >> ((1 - i) * 8)) & 0xFF;
+  }
+}
 void bytes_from_uint32(uint8_t bytes[4], uint32_t value) {
   for (int i=0; i<4; i++) {
     bytes[i] = (value >> ((3 - i) * 8)) & 0xFF;
@@ -37,6 +42,12 @@ void Writer_write_or_exit(Writer *w, const void const *data, size_t size, size_t
     exit_failure("Failed to write VLUint to file");
   }
 }
+void Writer_write_uint16_or_exit(Writer *w, uint16_t value) {
+  debug_printf("value: %d", value);
+  uint8_t bytes[2];
+  bytes_from_uint16(bytes, value);
+  Writer_write_or_exit(w, bytes, 1, 2);
+}
 void Writer_write_uint32_or_exit(Writer *w, uint32_t value) {
   debug_printf("value: %d", value);
   uint8_t bytes[4];
@@ -48,9 +59,9 @@ void Writer_write_head(Writer *w, MHead *head) {
   Writer_write_or_exit(w, "MThd", 1, 4);
   Writer_write_uint32_or_exit(w, 6);
 
-  Writer_write_or_exit(w, &head->format, 2, 1);
-  Writer_write_or_exit(w, &head->trackcount, 2, 1);
-  Writer_write_or_exit(w, &head->resolution, 2, 1);
+  Writer_write_uint16_or_exit(w, head->format);
+  Writer_write_uint16_or_exit(w, head->trackcount);
+  Writer_write_uint16_or_exit(w, head->resolution);
 }
 
 // Events
