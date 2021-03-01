@@ -142,8 +142,9 @@ void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta) {
 }
 void MetaEvent_init_tempo(TrackEvent *ev, uint32_t delta, uint32_t tempo) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 3);
+  uint32_t bpus = 60000000 / tempo;
   for (int i=0; i<3; i++) {
-    ev->meta.data[i] = tempo >> ((8 *(2 - i)) & 0xFF);
+    ev->meta.data[i] = (bpus >> (8 *(2 - i))) & 0xFF;
   }
 }
 void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature *ts) {
