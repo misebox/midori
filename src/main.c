@@ -19,11 +19,11 @@ int main() {
   TrackEvent ts_ev;
   MetaEvent_init_time_signature(&ts_ev, (uint32_t)0, &smf.ts);
   MTrack_append(&smf.track, &ts_ev);
-  TrackEvent melody[72];
-  for (int i=0; i<36; i++) {
-    MidiEvent_init(&melody[i*2], 0, MidiMsgType_NOTE_ON, 0x30 + i*2, 100, 0);
+  TrackEvent melody[122];
+  for (int i=0; i<61; i++) {
+    MidiEvent_init(&melody[i*2], 0, MidiMsgType_NOTE_ON, 0x24 + i, 100, 0);
     MTrack_append(&smf.track, &melody[i*2]);
-    MidiEvent_init(&melody[i*2+1], 96, MidiMsgType_NOTE_OFF, 0x30 + i*2, 0, 0);
+    MidiEvent_init(&melody[i*2+1], 120, MidiMsgType_NOTE_OFF, 0x30 + i, 0, 0);
     MTrack_append(&smf.track, &melody[i*2+1]);
   }
   TrackEvent end_ev;

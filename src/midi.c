@@ -13,14 +13,14 @@ void VLUint_set(VLUint *vlu, uint32_t value) {
   vlu->bytes[2] = 0;
   vlu->bytes[3] = 0;
   for (int i=0; i<=3; i++) {
-    uint8_t byte = value >> (7 * (3 - i)) & 0xFF;
+    uint8_t byte = value >> (7 * (3 - i)) & 0x7F;
     if (cur > 0 || byte > 0 || i == 3) {
       vlu->bytes[cur] = byte;
       cur++;
     }
   }
-  if (cur > 1) {
-    vlu->bytes[0] |= 0x80;
+  for (int i=0; i<cur-1; i++) {
+    vlu->bytes[i] |= 0x80;
   }
   vlu->size = cur;
 }
