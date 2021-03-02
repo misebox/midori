@@ -2,3 +2,5 @@ midori
 *.o
 output/*
 !output/.gitkeep
+build/*
+!build/.gitkeep
