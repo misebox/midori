@@ -2,6 +2,57 @@
 
 音程を別のデータから変換する
 
+メロディを表現できるバイナリ
+  HEADER
+  10  16分音符
+
+  note(01-3f)
+  00000000
+
+MIDIシーケンスを作成するのに理想的な言語を設計してみる。
+
+  do re mi fa sol la si
+  c  d  e  f  g   a  b
+
+  Chord CM7, Dm7, Em7, FM7;
+
+  // _Chord_init( Chord *chord, char *root, ...);
+  // typedef _Chord_init( Chord *chord, char *root, ...) \
+  //          Chord_init( Chord *chord, char *root, __VA_ARGS__, NULL);
+  Chord_init(&CM7, "C", DEG_1, DEG_3M, DEG_5, DEG_7M);
+  Chord_init(&DM7, "D", DEG_1, DEG_3M, DEG_5, DEG_7M);
+  Chord_init(&Em7, "E", DEG_1, DEG_3M, DEG_5, DEG_7M);
+  Chord_init(&FM7, "F", DEG_1, DEG_3M, DEG_5, DEG_7M);
+  Sequence seq_ch;
+  Sequence_init(&chord);
+  Sequence_set_chord_gradually(&chord, &CM7, 8);
+  Sequence mel;
+  Sequence_parse(&mel, "(@CM7 @Dm7 @Em7 @FM7) ) * 4");
+
+  midibox Score Notation
+  do mi sol si do#
+
+  音符の表現:
+    音符  : c d e f_16
+    伸ばす: c _ d _ e
+    同じ音: c . . . または c *4
+    休符  : c r c r
+
+  度数表現？:
+    RelationalNote: o[+-]?[1-8]d[0-9]{1,2}(v[0-9]{1,3})
+
+  現実的なコードの検討:
+  global(duration: 8, octave: 4)
+  $CM7 := chord(root: c, components: [d1v80,d3Mv70,d5v60,d7Mv40])
+  // バラが咲いた
+  $A1 := score("c_cc c_d_  | e_ee e_f_ | g_ga g _fe | g___ ....")
+  $A2 := score("a_aa f_a_  | g_gg e_g_ | f_ef e _d_ | c___ ....")
+  $B1 := score("a___ hc_ba | g_g_ e_.. | ..fe f _a_ | g___ e___")
+  $B2 := score("..d_ e_d_  | c___ e___ | .aaa hc_ba | b_a_ g_..")
+  $Theme := score "$A1 $A2 $B1 $B2"
+  output "$Theme"
+
+
 小節単位のデータ構造
 
 ファイルに描く前にバッファに書く方法を検討する。
