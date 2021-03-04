@@ -1,4 +1,4 @@
-midori
+bin/*
 *.o
 output/*
 !output/.gitkeep

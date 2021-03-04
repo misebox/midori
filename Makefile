@@ -21,6 +21,11 @@ TEST_OBJECTS  = $(addprefix $(TEST_OBJDIR)/, $(notdir $(TEST_SOURCES:.cpp=.o)))
 TEST_DEPENDS  = $(TEST_OBJECTS:.o=.d)
 
 
+.PHONY: $(TARGET) bin/lang
+
+bin/lang: ./build/lang.o
+	gcc -o bin/lang $(INCLUDE) src/lang.c
+
 $(TARGET): $(OBJECTS) $(LIBS)
 	$(COMPILER) -o $@ $^ $(LDFLAGS)
 
