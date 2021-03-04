@@ -23,8 +23,8 @@ TEST_DEPENDS  = $(TEST_OBJECTS:.o=.d)
 
 .PHONY: $(TARGET) bin/lang
 
-bin/lang: ./build/lang.o
-	gcc -o bin/lang $(INCLUDE) src/lang.c
+bin/lang: ./build/lang.o ./build/token.o ./build/vec.o
+	gcc -o bin/lang $^ $(INCLUDE)./src/lang.c
 
 $(TARGET): $(OBJECTS) $(LIBS)
 	$(COMPILER) -o $@ $^ $(LDFLAGS)
