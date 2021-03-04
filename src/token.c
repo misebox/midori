@@ -13,6 +13,7 @@ Token *Token_new(TokenType ty, char *start, size_t len) {
   t->len = len;
   return t;
 }
+
 void Token_free(Token *t) {
   free(t);
 }
@@ -25,18 +26,56 @@ void Token_print(Token *t) {
   free(str);
 }
 
-void tokenize(Vec *list, char *src) {
-  char ch;
-  size_t cur = 0;
-  while (1) {
-    ch = src[cur];
-    if (ch != EOF) {
+Token *consume_reserved(char *start, size_t len) {
+  const char *names[] = {
+    "phrase",
+    "bbb",
+    "ccc",
+    NULL,
+  };
+  size_t n = strlen(names);
+  Token *token = NULL;
+  for (char *name = names[0]; name != NULL; name++) {
+    if (strncmp(name, start, len) == 0) {
+      token = Token_new(TokenType_RESERVED, start, len);
+      printf("match: %u %s\n", token->len, name);
       break;
     }
-    printf("[%ld]%c ", cur, ch);
+  }
+  return token;
+}
+
+char *skip_range(char *start, char min, char max) {
+  int i = 0;
+  for(; min <= start[i] && start[i] <= max; i++) {
+    printf("test");
+    continue;
+  }
+  return i;
+}
+
+void tokenize(Vec *list, char *src) {
+  char ch;
+  size_t start = 0;
+  size_t cur = 0;
+  while (1) {
+    Token *t = NULL;
+    ch = src[cur];
+    if (ch == 0) {
+      break;
+    }
+    if ('a' <= ch && ch <= 'z') {
+      int len = skip_range(src + cur, 'a', 'z');
+      printf("len: %d\n", len);
+      //t = consume_reserved(src+cur, len);
+      if (t != NULL) {
+        Vec_push(list, t);
+        cur += t->len;
+        continue;
+      }
+    }
+    printf("%c", ch);
     cur++;
   }
-  Vec_push(list, Token_new(TOKENTYPE_RESERVED, src, 10));
-
-  printf("tokenize done.");
+  printf("tokenize done. %lu", cur);
 }

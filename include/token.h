@@ -5,11 +5,12 @@
 
 
 typedef enum ETokenType {
-  TOKENTYPE_RESERVED,
-  TOKENTYPE_STRING_LITERAL,
-  TOKENTYPE_VARIABLE,
-  TOKENTYPE_WHITESPACE,
-  TOKENTYPE_ASSIGNMENT,
+  TokenType_NONE,
+  TokenType_RESERVED,
+  TokenType_STRING_LITERAL,
+  TokenType_VARIABLE,
+  TokenType_WHITESPACE,
+  TokenType_ASSIGNMENT,
 } TokenType;
 
 typedef struct _Token {
