@@ -6,19 +6,9 @@
 #include "vec.h"
 #include "token.h"
 
-
-int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    printf("Source required\n");
-    exit(0);
-  }
-  const char *filename = argv[1];
-  printf("filename: %s\n", filename);
-
-  // read from file
+void read_file(char *src, char *filename) {
   FILE *fp = fopen(filename, "r");
   char line[256];
-  char src[4096];
   memset(src, 0, 4096);
   int no = 1;
   size_t cur = 0;
@@ -34,18 +24,28 @@ int main(int argc, char *argv[]) {
     no += 1;
   };
   fclose(fp);
+}
+
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
+    printf("Source required\n");
+    exit(0);
+  }
+  const char *filename = argv[1];
+  printf("filename: %s\n", filename);
+
+  // read from file
+  char src[4096];
+  read_file(src, filename);
 
   // tokenize
   Vec *tokens = Vec_new(100);
   tokenize(tokens, src);
-  for (size_t i=0; i<tokens->len; i++) {
-    Token *t = (Token *)tokens->items[i];
-    if (t == NULL) {
-      printf("list done\n");
-      break;
-    }
-    Token_print(t);
-  }
+
+  // parse
+  parse(tokens);
+
+  // free
   while (tokens->len > 0) {
     Token_free(Vec_top(tokens));
     Vec_pop(tokens);
