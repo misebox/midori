@@ -1,4 +1,4 @@
-COMPILER = gcc
+COMPILER = g++
 CFLAGS   = -g -O2 -Wall -DDEBUG
 LDFLAGS  =
 LIBS     =
@@ -39,7 +39,7 @@ $(TEST_OBJDIR)/%.o: $(TEST_SRCDIR)/%.cpp
 	@[ -d $(TEST_OBJDIR) ]
 	$(TEST_COMPILER) -O0 $(INCLUDE) -o $@ -c $<
 
-$(TEST_TARGET): $(TEST_OBJECTS) ./build/midi.o ./test/main.cpp
+$(TEST_TARGET): $(TEST_OBJECTS) ./build/token.o ./build/vec.o ./build/parse.o ./build/midi.o ./build/writer.o
 	$(TEST_COMPILER) -o $@ $(INCLUDE) $^ $(TEST_LIBS)
 
 test: $(TEST_TARGET)

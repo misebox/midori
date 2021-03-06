@@ -35,7 +35,7 @@ void Writer_close(Writer *w) {
   if (fclose(w->fp) == EOF)
     exit_failure("Failed to close file\n");
 }
-void Writer_write_or_exit(Writer *w, const void const *data, size_t size, size_t num) {
+void Writer_write_or_exit(Writer *w, const void *data, size_t size, size_t num) {
   cnt += size * num;
   debug_printf("cnt: %d", cnt);
   if (fwrite(data, size, num, w->fp) < 1) {

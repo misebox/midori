@@ -1,11 +1,12 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "vec.h"
 #include "assert.h"
 
 
 Vec *Vec_new(size_t size) {
-  Vec *v = malloc(sizeof(Vec));
-  v->items = malloc(sizeof(void *) * size);
+  Vec *v = (Vec *)malloc(sizeof(Vec));
+  v->items = (void **)malloc(sizeof(void *) * size);
   v->size = size;
   v->len = 0;
   return v;
@@ -14,7 +15,7 @@ Vec *Vec_new(size_t size) {
 void Vec_push(Vec *v, void *item) {
   if (v->len == v->size) {
     v->size *= 2;
-    v->items = realloc(v, v->size);
+    v->items = (void **)realloc(v, v->size);
   }
   printf("Vec_push len: %d, size: %d\n", v->len, v->size);
   assert(v->len < v->size);

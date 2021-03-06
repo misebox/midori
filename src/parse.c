@@ -13,7 +13,7 @@ void parse(SMF *smf, Vec *v) {
   TrackEvent *ts_ev;
   MetaEvent_init_time_signature(ts_ev, (uint32_t)0, &smf->ts);
   MTrack_append(&smf->track, ts_ev);
-  TrackEvent *melody = malloc(sizeof(TrackEvent));
+  TrackEvent *melody = (TrackEvent *)malloc(sizeof(TrackEvent));
   for (int i=0; i<61; i++) {
     MidiEvent_init(&melody[i*2], 0, MidiMsgType_NOTE_ON, 0x24 + i, 100, 0);
     MTrack_append(&smf->track, &melody[i*2]);

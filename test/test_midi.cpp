@@ -25,6 +25,7 @@ TEST(VLUint_set, Set1Byte) {
   VLUint_set(&vlu, 0x7f);
   expect_vlu(&vlu, 1, 0x7f, 0, 0, 0);
 }
+
 TEST(VLUint_set, Set2Byte) {
   VLUint vlu;
   VLUint_set(&vlu, 0x80);
@@ -34,6 +35,7 @@ TEST(VLUint_set, Set2Byte) {
   VLUint_set(&vlu, 0x3fff);
   expect_vlu(&vlu, 2, 0xff, 0x7f, 0, 0);
 }
+
 // void VLUint_set(VLUint *vlu, uint32_t value);
 // void TimeSignature_init(TimeSignature *ts);
 // 

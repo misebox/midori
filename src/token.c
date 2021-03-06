@@ -22,7 +22,7 @@ const char *TokenTypeName[] = {
 };
 
 Token *Token_new(TokenType ty, char *start, size_t len) {
-  Token *t = malloc(sizeof(Token));
+  Token *t = (Token *)malloc(sizeof(Token));
   t->ty = ty;
   t->start = start;
   t->len = len;
@@ -34,7 +34,7 @@ void Token_free(Token *t) {
 }
 
 void Token_print(Token *t) {
-  char *str = malloc(sizeof(char) * (t->len + 1));
+  char *str = (char *)malloc(sizeof(char) * (t->len + 1));
   strncpy(str, t->start, t->len);
   str[t->len] = 0;
 
