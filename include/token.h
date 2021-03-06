@@ -4,8 +4,6 @@
 #include "vec.h"
 
 
-#define BETWEEN(a, ch, b) (a <= ch && ch <= b)
-
 typedef enum ETokenType {
   TokenType_NONE,
   TokenType_PHRASE,
@@ -16,19 +14,6 @@ typedef enum ETokenType {
   TokenType_ASSIGNMENT,
   TokenType_EOL,
 } TokenType;
-
-#define STR(var) #var
-
-const char *TokenTypeName[] = {
-  STR(TokenType_NONE),
-  STR(TokenType_PHRASE),
-  STR(TokenType_WRITE),
-  STR(TokenType_QUOTED),
-  STR(TokenType_VARIABLE),
-  STR(TokenType_WHITESPACE),
-  STR(TokenType_ASSIGNMENT),
-  STR(TokenType_EOL),
-};
 
 typedef struct _Token {
   TokenType ty;

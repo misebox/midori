@@ -64,12 +64,12 @@ void MTrack_resize(MTrack *mt, uint32_t size) {
       TrackEvent_release(mt->events[i]);
     }
   }
-  debug_printf("realloc: %d", sizeof(TrackEvent *) * size);
+  debug_printf("realloc: %ld", sizeof(TrackEvent *) * size);
   mt->events = (TrackEvent **)realloc(mt->events, sizeof(TrackEvent *) * size);
   mt->size = size;
 }
 void MTrack_append(MTrack *mt, TrackEvent *ev) {
-  debug_printf("mt len: %d", mt->len);
+  debug_printf("mt len: %ld", mt->len);
   assert(mt->len <= mt->size);
   if (mt->size == mt->len) {
     MTrack_resize(mt, mt->size * 2);
@@ -97,18 +97,18 @@ void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t not
 }
 
 // Note ON
-inline void MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t vel, uint8_t ch) {
+void MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t vel, uint8_t ch) {
   MidiEvent_init(ev, delta, MidiMsgType_NOTE_ON, note, vel, ch);
 }
 
 // Note OFF
-inline void MidiEvent_set_note_off(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t ch) {
+void MidiEvent_set_note_off(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t ch) {
   MidiEvent_init(ev, delta, MidiMsgType_NOTE_OFF, note, 0, ch);
 }
 
 // SysEx Event
 void SysExEvent_init(TrackEvent *ev, uint32_t delta, SysExType type, size_t len) {
-  debug_printf("malloc: %d", len);
+  debug_printf("malloc: %ld", len);
   ev->type = TrackEventType_SYSEX;
   ev->delta = delta;
   ev->sysex.type = type;
@@ -122,7 +122,7 @@ void SysExEvent_release(TrackEvent *ev) {
 
 // Meta event
 void MetaEvent_init(TrackEvent *ev, uint32_t delta, MetaEventType type, size_t len) {
-  debug_printf("malloc: %d", len);
+  debug_printf("malloc: %ld", len);
   ev->type = TrackEventType_META;
   ev->delta = delta;
   ev->meta.type = type;

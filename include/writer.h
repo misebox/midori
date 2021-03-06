@@ -8,13 +8,13 @@ typedef struct _Writer {
   const char *filename;
 } Writer;
 
-void Writer_write_init(Writer *w, const char *filename);
-void Writer_write_release(Writer *w);
+void Writer_init(Writer *w, const char *filename);
+void Writer_release(Writer *w);
 
 void exit_failure(char *message);
-void Writer_write_open(Writer *w, const char *filename);
-void Writer_write_close(Writer *w);
-void Writer_write_or_exit(Writer *w, const void const *data, size_t size, size_t num);
+void Writer_open(Writer *w, const char *filename);
+void Writer_close(Writer *w);
+void Writer_write_or_exit(Writer *w, const void *data, size_t size, size_t num);
 void Writer_write_uint16_or_exit(Writer *w, uint16_t value);
 void Writer_write_uint32_or_exit(Writer *w, uint32_t value);
 // head

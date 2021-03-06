@@ -5,8 +5,12 @@
 
 #include "vec.h"
 #include "token.h"
+#include "parse.h"
+#include "midi.h"
+#include "writer.h"
 
-void read_file(char *src, char *filename) {
+
+void read_file(char *src, const char *filename) {
   FILE *fp = fopen(filename, "r");
   char line[256];
   memset(src, 0, 4096);
@@ -39,13 +43,23 @@ int main(int argc, char *argv[]) {
   read_file(src, filename);
 
   // tokenize
-  Vec *tokens = Vec_new(100);
+  Vec *tokens = Vec_new(10);
   tokenize(tokens, src);
 
+  printf("debug 1");
   // parse
-  parse(tokens);
+  SMF *smf;
+  SMF_init(smf);
+  parse(smf, tokens);
+
+  // Save
+  Writer writer;
+  Writer_open(&writer, "output/a.mid");
+  Writer_write_smf(&writer, smf);
+  Writer_close(&writer);
 
   // free
+  SMF_release(smf);
   while (tokens->len > 0) {
     Token_free(Vec_top(tokens));
     Vec_pop(tokens);

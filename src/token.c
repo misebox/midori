@@ -6,6 +6,21 @@
 #include "token.h"
 
 
+#define BETWEEN(a, ch, b) (a <= ch && ch <= b)
+
+#define STR(var) #var
+
+const char *TokenTypeName[] = {
+  STR(TokenType_NONE),
+  STR(TokenType_PHRASE),
+  STR(TokenType_WRITE),
+  STR(TokenType_QUOTED),
+  STR(TokenType_VARIABLE),
+  STR(TokenType_WHITESPACE),
+  STR(TokenType_ASSIGNMENT),
+  STR(TokenType_EOL),
+};
+
 Token *Token_new(TokenType ty, char *start, size_t len) {
   Token *t = malloc(sizeof(Token));
   t->ty = ty;
@@ -22,7 +37,12 @@ void Token_print(Token *t) {
   char *str = malloc(sizeof(char) * (t->len + 1));
   strncpy(str, t->start, t->len);
   str[t->len] = 0;
-  printf("<Token type: %s(%u), start: %s, len: %lu>\n", TokenTypeName[t->ty], t->ty, str, t->len);
+
+  if (t->ty == TokenType_EOL) {
+    printf("<Token type: %s(%u), len: %lu>\n", TokenTypeName[t->ty], t->ty, t->len);
+  } else {
+    printf("<Token type: %s(%u), start: %s, len: %lu>\n", TokenTypeName[t->ty], t->ty, str, t->len);
+  }
   free(str);
 }
 
@@ -73,6 +93,7 @@ Token *tokenize_quoted(char *p) {
   }
   return token;
 }
+
 Token *tokenize_eol(char *p) {
   if (p[0] == '\n') {
     return Token_new(TokenType_EOL, p, 1);
@@ -97,7 +118,7 @@ void tokenize(Vec *list, char *src) {
     if (!t) t = tokenize_eol(p);
     if (t != NULL) {
       Vec_push(list, t);
-      // Token_print(t);
+      Token_print(t);
       cur += t->len;
       continue;
     }
@@ -111,5 +132,5 @@ void tokenize(Vec *list, char *src) {
     }
     Token_print(t);
   }
-  printf("tokenize done. %lu\n", cur);
+  printf("tokenize done. (%lu)\n", cur);
 }

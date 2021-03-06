@@ -15,7 +15,7 @@ TEST_LIBS     = -lgtest_main -lgtest -lpthread
 TEST_TARGET   = ./bin/test
 TEST_LDFLAGS  =
 TEST_SRCDIR   = ./test
-TEST_SOURCES  = $(wildcard $(TEST_SRCDIR)/*.cpp)
+TEST_SOURCES  = $(wildcard $(TEST_SRCDIR)/test_*.cpp)
 TEST_OBJDIR   = ./build/test
 TEST_OBJECTS  = $(addprefix $(TEST_OBJDIR)/, $(notdir $(TEST_SOURCES:.cpp=.o)))
 TEST_DEPENDS  = $(TEST_OBJECTS:.o=.d)
@@ -23,8 +23,8 @@ TEST_DEPENDS  = $(TEST_OBJECTS:.o=.d)
 
 .PHONY: $(TARGET) bin/lang
 
-bin/lang: ./build/lang.o ./build/token.o ./build/vec.o
-	gcc -o bin/lang $^ $(INCLUDE)./src/lang.c
+bin/lang: ./build/token.o ./build/vec.o ./build/parse.o ./build/midi.o ./build/writer.o
+	gcc -o bin/lang $^ $(INCLUDE) ./src/lang.c
 
 $(TARGET): $(OBJECTS) $(LIBS)
 	$(COMPILER) -o $@ $^ $(LDFLAGS)
@@ -39,8 +39,8 @@ $(TEST_OBJDIR)/%.o: $(TEST_SRCDIR)/%.cpp
 	@[ -d $(TEST_OBJDIR) ]
 	$(TEST_COMPILER) -O0 $(INCLUDE) -o $@ -c $<
 
-$(TEST_TARGET): $(TEST_OBJECTS)
-	$(TEST_COMPILER) -o $(TEST_TARGET) $(TEST_LIBS)
+$(TEST_TARGET): $(TEST_OBJECTS) ./build/midi.o ./test/main.cpp
+	$(TEST_COMPILER) -o $@ $(INCLUDE) $^ $(TEST_LIBS)
 
 test: $(TEST_TARGET)
 
