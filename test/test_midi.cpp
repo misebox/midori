@@ -21,9 +21,9 @@ TEST(VLUint_set, Set1Byte) {
   VLUint_set(&vlu, 0);
   expect_vlu(&vlu, 1, 0, 0, 0, 0);
   VLUint_set(&vlu, 0x78);
-  expect_vlu(&vlu, 1, 0x78, 0, 0, 0);
-  VLUint_set(&vlu, 0x7f);
-  expect_vlu(&vlu, 1, 0x7f, 0, 0, 0);
+  expect_vlu(&vlu, 1, 0X78, 0, 0, 0);
+  VLUint_set(&vlu, 0X7F);
+  expect_vlu(&vlu, 1, 0X7F, 0, 0, 0);
 }
 
 TEST(VLUint_set, Set2Byte) {
@@ -32,8 +32,27 @@ TEST(VLUint_set, Set2Byte) {
   expect_vlu(&vlu, 2, 0x81, 0, 0, 0);
   VLUint_set(&vlu, 0x100);
   expect_vlu(&vlu, 2, 0x82, 0, 0, 0);
-  VLUint_set(&vlu, 0x3fff);
-  expect_vlu(&vlu, 2, 0xff, 0x7f, 0, 0);
+  VLUint_set(&vlu, 0x3FFF);
+  expect_vlu(&vlu, 2, 0XFF, 0X7F, 0, 0);
+}
+
+TEST(VLUint_set, Set3Byte) {
+  VLUint vlu;
+  VLUint_set(&vlu, 0x4000);
+  expect_vlu(&vlu, 3, 0x81, 0x80, 0, 0);
+  VLUint_set(&vlu, 0x012345);
+  expect_vlu(&vlu, 3, 0x84, 0xC6, 0x45, 0);
+  VLUint_set(&vlu, 0X1FFFFF);
+  expect_vlu(&vlu, 3, 0XFF, 0XFF, 0X7F, 0);
+}
+TEST(VLUint_set, Set4Byte) {
+  VLUint vlu;
+  VLUint_set(&vlu, 0x200000);
+  expect_vlu(&vlu, 4, 0x81, 0x80, 0x80, 0);
+  VLUint_set(&vlu, 0x01234567);
+  expect_vlu(&vlu, 4, 0x89, 0x8D, 0x8A, 0x67);
+  VLUint_set(&vlu, 0X0FFFFFFF);
+  expect_vlu(&vlu, 4, 0XFF, 0XFF, 0XFF, 0X7F);
 }
 
 // void VLUint_set(VLUint *vlu, uint32_t value);

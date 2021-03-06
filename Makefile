@@ -43,6 +43,7 @@ $(TEST_TARGET): $(TEST_OBJECTS) ./build/token.o ./build/vec.o ./build/parse.o ./
 	$(TEST_COMPILER) -o $@ $(INCLUDE) $^ $(TEST_LIBS)
 
 test: $(TEST_TARGET)
+	bin/test
 
 all: clean $(TARGET)
 
