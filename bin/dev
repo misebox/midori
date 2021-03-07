@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ninja -t clean; ./gen_ninja.py && ninja midori && build/midori/midori samples/a.midic
+
