@@ -55,6 +55,19 @@ TEST(VLUint_set, Set4Byte) {
   expect_vlu(&vlu, 4, 0XFF, 0XFF, 0XFF, 0X7F);
 }
 
+TEST(SMF, MHead_init) {
+  MHead head;
+  MHead_init(&head);
+  EXPECT_EQ(head.format, 0);
+  EXPECT_EQ(head.trackcount, 1);
+  EXPECT_EQ(head.resolution, 480);
+}
+TEST(SMF, MTrack_init) {
+  MTrack mt;
+  MTrack_init(&mt, 10);
+  EXPECT_EQ(mt.size, 10);
+  EXPECT_EQ(mt.len, 0);
+}
 // void VLUint_set(VLUint *vlu, uint32_t value);
 // void TimeSignature_init(TimeSignature *ts);
 // 
