@@ -17,7 +17,7 @@ void Vec_push(Vec *v, void *item) {
     v->size *= 2;
     v->items = (void **)realloc(v, v->size);
   }
-  printf("Vec_push len: %d, size: %d\n", v->len, v->size);
+  printf("Vec_push len: %ld, size: %ld\n", v->len, v->size);
   assert(v->len < v->size);
   v->items[v->len] = item;
   v->len++;

@@ -86,6 +86,43 @@ void MTrack_release(MTrack *mt) {
   debug_print("done");
 }
 
+// TrackEvent
+TrackEvent *TrackEvent_new() {
+  return malloc(sizeof(TrackEvent));
+}
+void TrackEvent_release(TrackEvent *ev) {
+  if (ev->type == TrackEventType_SYSEX) {
+    SysExEvent_release(ev);
+  } else if (ev->type == TrackEventType_META) {
+    MetaEvent_release(ev);
+  } else {
+  }
+}
+uint32_t TrackEvent_length(TrackEvent *ev) {
+  VLUint vlu;
+  VLUint_set(&vlu, ev->delta);
+  debug_printf("vlu %d --> %02x%02x%02x%02x size: %d",
+    ev->delta, vlu.bytes[0], vlu.bytes[1], vlu.bytes[2], vlu.bytes[3], vlu.size);
+  if (ev->type == TrackEventType_MIDI) {
+    if (ev->midi.msg == MidiMsgType_PROGRAM_CHANGE) {
+      return vlu.size + 2;
+    } else if (ev->midi.msg == MidiMsgType_CHANNEL_PRESSURE) {
+      return vlu.size + 2;
+    } else {
+      return vlu.size + 3;
+    }
+  } else if (ev->type == TrackEventType_SYSEX) {
+    if (ev->sysex.type == SysExType_F0) {
+      return vlu.size + 3 + ev->sysex.len;
+    } else {
+      return vlu.size + 2 + ev->sysex.len;
+    }
+  } else if (ev->type == TrackEventType_META) {
+    return vlu.size + 3 + ev->meta.len;
+  }
+  return vlu.size;
+}
+
 // MIDI event
 void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t note, uint8_t vel, uint8_t ch) {
   ev->type = TrackEventType_MIDI;
@@ -140,6 +177,11 @@ void MetaEvent_release(TrackEvent *ev) {
 void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 0);
 }
+TrackEvent *MetaEvent_new_endoftrack(uint32_t delta) {
+  TrackEvent *ev = TrackEvent_new();
+  MetaEvent_init_endoftrack(ev, delta);
+  return ev;
+}
 void MetaEvent_init_tempo(TrackEvent *ev, uint32_t delta, uint32_t tempo) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 3);
   uint32_t bpus = 60000000 / tempo;
@@ -147,6 +189,12 @@ void MetaEvent_init_tempo(TrackEvent *ev, uint32_t delta, uint32_t tempo) {
     ev->meta.data[i] = (bpus >> (8 *(2 - i))) & 0xFF;
   }
 }
+TrackEvent *MetaEvent_new_tempo(uint32_t delta, uint32_t tempo) {
+  TrackEvent *ev = TrackEvent_new();
+  MetaEvent_init_tempo(ev, delta, tempo);
+  return ev;
+}
+
 void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature *ts) {
   MetaEvent_init(ev, delta, MetaEventType_TimeSignature, 4);
   ev->meta.data[0] = ts->numer;
@@ -154,36 +202,8 @@ void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature
   ev->meta.data[2] = ts->num_clocks;
   ev->meta.data[3] = ts->num_32nd;
 }
-
-// TrackEvent
-void TrackEvent_release(TrackEvent *ev) {
-  if (ev->type == TrackEventType_SYSEX) {
-    SysExEvent_release(ev);
-  } else if (ev->type == TrackEventType_META) {
-    MetaEvent_release(ev);
-  }
-}
-uint32_t TrackEvent_length(TrackEvent *ev) {
-  VLUint vlu;
-  VLUint_set(&vlu, ev->delta);
-  debug_printf("vlu %d --> %02x%02x%02x%02x size: %d",
-    ev->delta, vlu.bytes[0], vlu.bytes[1], vlu.bytes[2], vlu.bytes[3], vlu.size);
-  if (ev->type == TrackEventType_MIDI) {
-    if (ev->midi.msg == MidiMsgType_PROGRAM_CHANGE) {
-      return vlu.size + 2;
-    } else if (ev->midi.msg == MidiMsgType_CHANNEL_PRESSURE) {
-      return vlu.size + 2;
-    } else {
-      return vlu.size + 3;
-    }
-  } else if (ev->type == TrackEventType_SYSEX) {
-    if (ev->sysex.type == SysExType_F0) {
-      return vlu.size + 3 + ev->sysex.len;
-    } else {
-      return vlu.size + 2 + ev->sysex.len;
-    }
-  } else if (ev->type == TrackEventType_META) {
-    return vlu.size + 3 + ev->meta.len;
-  }
-  return vlu.size;
+TrackEvent *MetaEvent_new_time_signature(uint32_t delta, TimeSignature *ts) {
+  TrackEvent *ev = TrackEvent_new();
+  MetaEvent_init_time_signature(ev, delta, ts);
+  return ev;
 }

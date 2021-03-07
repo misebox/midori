@@ -115,16 +115,25 @@ typedef struct _SMF {
 void VLUint_set(VLUint *vlu, uint32_t value);
 void TimeSignature_init(TimeSignature *ts);
 
+TrackEvent *TrackEvent_new();
+void TrackEvent_release(TrackEvent *ev);
+uint32_t TrackEvent_length(TrackEvent *ev);
+
+TrackEvent *MetaEvent_new_endoftrack(uint32_t delta);
+TrackEvent *MetaEvent_new_tempo(uint32_t delta, uint32_t tempo);
+TrackEvent *MetaEvent_new_time_signature(uint32_t delta, TimeSignature *ts);
+
+
 void MidiEvent_init(TrackEvent *ev, uint32_t delta, MidiMsgType msg, uint8_t note, uint8_t vel, uint8_t ch);
 void MidiEvent_set_note_on(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t vel, uint8_t ch);
 void MidiEvent_set_note_off(TrackEvent *ev, uint32_t delta, uint8_t note, uint8_t ch);
 void SysExEvent_init(TrackEvent *ev, uint32_t delta, SysExType type, size_t len);
+void SysExEvent_release(TrackEvent *ev);
 void MetaEvent_init(TrackEvent *ev, uint32_t delta, MetaEventType type, size_t len);
 void MetaEvent_init_tempo(TrackEvent *ev, uint32_t delta, uint32_t tempo);
 void MetaEvent_init_time_signature(TrackEvent *ev, uint32_t delta, TimeSignature *ts);
 void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta);
-void TrackEvent_release(TrackEvent *ev);
-uint32_t TrackEvent_length(TrackEvent *ev);
+void MetaEvent_release(TrackEvent *ev);
 
 // MHead
 void MHead_init(MHead *head);

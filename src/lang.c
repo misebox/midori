@@ -46,9 +46,8 @@ int main(int argc, char *argv[]) {
   Vec *tokens = Vec_new(10);
   tokenize(tokens, src);
 
-  printf("debug 1");
   // parse
-  SMF *smf;
+  SMF *smf = (SMF *)malloc(sizeof(SMF));
   SMF_init(smf);
   parse(smf, tokens);
 
