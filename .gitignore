@@ -4,3 +4,7 @@ output/*
 !output/.gitkeep
 build/*
 !build/.gitkeep
+.ninja_deps
+.ninja_log
+build.ninja
+
