@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "vec.h"
 
 
@@ -25,3 +26,6 @@ Token *Token_new(TokenType ty, char *start, size_t len);
 void Token_free(Token *t);
 void Token_print(Token *t);
 void tokenize(Vec *list, char *src);
+
+bool Token_is_value_token(Token *token);
+bool Token_is_operator_token(Token *token);

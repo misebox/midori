@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -118,19 +119,20 @@ void tokenize(Vec *list, char *src) {
     if (!t) t = tokenize_eol(p);
     if (t != NULL) {
       Vec_push(list, t);
-      Token_print(t);
       cur += t->len;
       continue;
     }
     cur++;
   }
-  for (size_t i=0; i<list->len; i++) {
-    Token *t = (Token *)list->items[i];
-    if (t == NULL) {
-      printf("list done\n");
-      break;
-    }
-    Token_print(t);
-  }
-  printf("tokenize done. (%lu)\n", cur);
+}
+
+bool Token_is_value_token(Token *token) {
+  return token->ty == TokenType_QUOTED
+  || token->ty == TokenType_VARIABLE;
+}
+
+bool Token_is_operator_token(Token *token) {
+  return token->ty == TokenType_PHRASE
+  || token->ty == TokenType_WRITE
+  || token->ty == TokenType_ASSIGNMENT;
 }

@@ -3,12 +3,8 @@
 #include "writer.h"
 #include "midi.h"
 #include "debug.h"
+#include "util.h"
 
-
-void exit_failure(char *message) {
-  fputs(message, stderr);
-  exit(EXIT_FAILURE);
-}
 
 void bytes_from_uint16(uint8_t bytes[2], uint16_t value) {
   for (int i=0; i<2; i++) {

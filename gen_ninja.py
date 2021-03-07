@@ -6,14 +6,17 @@ objs = ''
 test_bin = 'build build/test/test: link_test'
 midori_bin = 'build build/midori/midori: link'
 
-sources = [
-    'src/writer.c',
-    'src/midi.c',
-    'src/parse.c',
-    'src/token.c',
-    'src/vec.c',
+
+files = glob.glob('src/*.c')
+print(files)
+skip_list = [
+    'main.c',
+    'lang.c',
 ]
+sources = list(filter(lambda x: all(skip not in x for skip in skip_list), files))
+print(sources)
 midori_build_dir = 'build/midori'
+
 for file in sources:
     path = os.path.dirname(file)
     base = os.path.basename(file)
@@ -22,18 +25,11 @@ for file in sources:
     objs += f'build {objname}: compile {file}\n'
     midori_bin += f' {objname}'
 
-test_sources = [
-    'src/writer.c',
-    'src/midi.c',
-    'src/parse.c',
-    'src/token.c',
-    'src/vec.c',
-]
 tests = glob.glob('test/test_*.cpp')
 
 test_build_dir = 'build/test'
 
-for file in tests + test_sources:
+for file in tests + sources:
     path = os.path.dirname(file)
     base = os.path.basename(file)
     name, ext = os.path.splitext(base)
@@ -43,7 +39,7 @@ for file in tests + test_sources:
     
 ninja = f"""
 cc = gcc
-cflags = -g -DDEBUG -O0 -std=c11
+cflags = -g -O0 -std=c11
 cxx = g++
 cxxflags = -g -O0 -std=c++11
 

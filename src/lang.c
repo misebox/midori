@@ -19,7 +19,6 @@ void read_file(char *src, const char *filename) {
   while (1) {
     if (fgets(line, 255, fp) == NULL) {
       src[cur] = 0; 
-      printf("Reading done\n");
       break;
     }
     size_t len = strlen(line);

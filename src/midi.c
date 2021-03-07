@@ -51,7 +51,7 @@ void MHead_init(MHead *head) {
 }
 // MTrack
 void MTrack_init(MTrack *mt, uint32_t size) {
-  debug_printf("calloc: %d", sizeof(TrackEvent *) * size);
+  debug_printf("calloc: %ld", sizeof(TrackEvent *) * size);
   mt->events = (TrackEvent **)calloc(size, sizeof(TrackEvent *));
   mt->len = 0;
   mt->size = size;
@@ -69,7 +69,7 @@ void MTrack_resize(MTrack *mt, uint32_t size) {
   mt->size = size;
 }
 void MTrack_append(MTrack *mt, TrackEvent *ev) {
-  debug_printf("mt len: %ld", mt->len);
+  debug_printf("mt len: %d", mt->len);
   assert(mt->len <= mt->size);
   if (mt->size == mt->len) {
     MTrack_resize(mt, mt->size * 2);
@@ -172,7 +172,6 @@ void MetaEvent_init(TrackEvent *ev, uint32_t delta, MetaEventType type, size_t l
 }
 void MetaEvent_release(TrackEvent *ev) {
   free(ev->meta.data);
-  debug_print("done");
 }
 void MetaEvent_init_endoftrack(TrackEvent *ev, uint32_t delta) {
   MetaEvent_init(ev, delta, MetaEventType_SetTempo, 0);
